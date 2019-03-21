@@ -107,4 +107,14 @@ public class SkinDetection : MonoBehaviour {
             ImageFrame.Draw(face, new Bgr(System.Drawing.Color.Green), 3); //draws a rectangle on top of your detection
         return ImageFrame; //returns your bitmap with detection applied;
     }
+
+    public static Rectangle DoCascadeRect(Image<Bgr,Byte> source) {
+        //Bitmap Source; //your Bitmap
+        Image<Bgr, Byte> ImageFrame = source;//new Image<Bgr, Byte>("C:\\Users\\akash\\Downloads\\hand.jpg"); //image that stores your bitmap
+        Image<Gray, Byte> grayFrame = ImageFrame.Convert<Gray, Byte>(); //grayscale of your image
+        CascadeClassifier haar = new CascadeClassifier("C:\\Users\\akash\\Downloads\\Hand.Cascade.1.xml"); //the object used for detection
+
+        Rectangle[] faces = haar.DetectMultiScale(grayFrame, 1.1, 10, Size.Empty); //the actual face detection happens here
+        return faces[0];
+    }
 }
