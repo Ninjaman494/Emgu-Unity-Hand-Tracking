@@ -12,13 +12,13 @@ using System.Drawing;
 
 public class SkinDetection : MonoBehaviour {
 
-    bool R1(int R, int G, int B) {
+    static bool R1(int R, int G, int B) {
         bool e1 = (R > 95) && (G > 40) && (B > 20) && ((Math.Max(R, Math.Max(G, B)) - Math.Min(R, Math.Min(G, B))) > 15) && (Math.Abs(R - G) > 15) && (R > G) && (R > B);
         bool e2 = (R > 220) && (G > 210) && (B > 170) && (Math.Abs(R - G) <= 15) && (R > B) && (G > B);
         return (e1 || e2);
     }
 
-    bool R2(float Y, float Cr, float Cb) {
+    static bool R2(float Y, float Cr, float Cb) {
         bool e3 = Cr <= 1.5862 * Cb + 20;
         bool e4 = Cr >= 0.3448 * Cb + 76.2069;
         bool e5 = Cr >= -4.5652 * Cb + 234.5652;
@@ -27,11 +27,11 @@ public class SkinDetection : MonoBehaviour {
         return e3 && e4 && e5 && e6 && e7;
     }
 
-    bool R3(float H, float S, float V) {
+    static bool R3(float H, float S, float V) {
         return (H < 25) || (H > 230);
     }
 
-    Image<Bgr,Byte> GetSkin(Image<Bgr, Byte> image) {
+    public static Image<Bgr,Byte> GetSkin(Image<Bgr, Byte> image) {
         // allocate the result matrix
         Image<Bgr,Byte> dst = image.Clone();
         Bgr cwhite = new Bgr(255,255,255);//Vec3b::all(255);
@@ -96,7 +96,7 @@ public class SkinDetection : MonoBehaviour {
         //hand.Save("C:\\Users\\akash\\Desktop\\picture2.jpg");
     }
 
-    Image<Bgr, Byte> DoCascade(Image<Bgr,Byte> source) {
+    public static Image<Bgr, Byte> DoCascade(Image<Bgr,Byte> source) {
         //Bitmap Source; //your Bitmap
         Image<Bgr, Byte> ImageFrame = source;//new Image<Bgr, Byte>("C:\\Users\\akash\\Downloads\\hand.jpg"); //image that stores your bitmap
         Image<Gray, Byte> grayFrame = ImageFrame.Convert<Gray, Byte>(); //grayscale of your image
