@@ -20,6 +20,8 @@ public class PlayVideo : MonoBehaviour {
     TrackerCSRT tracker;
     Rectangle handBox;// = new Rectangle(150, 150, 200, 200);
     bool isReady = false;
+    GameObject hand;
+
     // Start is called before the first frame update
     void Start() {
         capture = new VideoCapture(0);
@@ -32,15 +34,15 @@ public class PlayVideo : MonoBehaviour {
         float height = size.y;
         float widthX = width / initialFrame.Width;
         float heightX = height / initialFrame.Height;
-        handBox = new Rectangle((int)(5/widthX), (int)(5/heightX), 1, 1);
+        handBox = new Rectangle((int)(5/widthX) - 100 , (int)(5/heightX) - 100, 200, 200);
 
         initialFrame.Draw(handBox, new Bgr(System.Drawing.Color.Green), 2);
         texture = TextureConvert.ImageToTexture2D<Bgr, Byte>(initialFrame, FlipType.None);
         GetComponent<Renderer>().material.mainTexture = texture;
 
         // Spawn "hand"
-        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube.transform.position = VideoCoordToScreenCoord(handBox.X, handBox.Y, initialFrame.Width, initialFrame.Height);
+        hand = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        hand.transform.position = VideoCoordToScreenCoord(handBox.X, handBox.Y, initialFrame.Width, initialFrame.Height);
     }
 
     // Update is called once per frame
@@ -57,6 +59,7 @@ public class PlayVideo : MonoBehaviour {
             tracker.Update(frame.Mat, out box);
             if (box != null) {
                 frame.Draw(box, new Bgr(System.Drawing.Color.Green), 3);
+                hand.transform.position = VideoCoordToScreenCoord(box.X, box.Y, frame.Width, frame.Height);
             } else {
                 Debug.Log("Box is null");
             }
@@ -73,8 +76,8 @@ public class PlayVideo : MonoBehaviour {
     Vector3 VideoCoordToScreenCoord(float x, float y, float frameWidth, float frameHeight) {
         float widthY = (float)camera.pixelWidth / frameWidth;
         float heightY = (float)camera.pixelHeight / frameHeight;
-        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        Vector3 vector = camera.ScreenToWorldPoint(new Vector3(x * widthY,y * heightY, 0));
+        Debug.Log(new Vector3(x * widthY,y * heightY, 0));
+        Vector3 vector = camera.ScreenToWorldPoint(new Vector3(-x * widthY,-y * heightY, Camera.main.nearClipPlane));
         vector.z = 0;
         return vector;
     }
