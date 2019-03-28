@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using Emgu.CV;
 using Emgu.CV.Util;
@@ -29,16 +30,21 @@ public class PlayVideo : MonoBehaviour {
         tracker = new TrackerCSRT();
         
         // Drawing inital handBox
-        Vector3 size = GetComponent<Renderer>().bounds.size;
-        float width = size.x;
-        float height = size.y;
+        Rect size = GetComponent<RawImage>().rectTransform.rect;
+        float width = size.width;
+        float height = size.height;
         float widthX = width / initialFrame.Width;
         float heightX = height / initialFrame.Height;
-        handBox = new Rectangle((int)(5/widthX) - 100 , (int)(5/heightX) - 100, 200, 200);
 
-        initialFrame.Draw(handBox, new Bgr(System.Drawing.Color.Green), 2);
-        texture = TextureConvert.ImageToTexture2D<Bgr, Byte>(initialFrame, FlipType.None);
-        GetComponent<Renderer>().material.mainTexture = texture;
+
+        float midX = (initialFrame.Width / 2);
+        float midY = (initialFrame.Height / 2);
+        handBox = new Rectangle((int)midX - 100,(int)midY - 100, 200, 200);
+        Debug.Log(width);
+
+        initialFrame.Draw(handBox, new Bgr(System.Drawing.Color.Green), 3);
+        texture = TextureConvert.ImageToTexture2D<Bgr, Byte>(initialFrame, FlipType.Vertical);
+        GetComponent<RawImage>().texture = texture;
 
         // Spawn "hand"
         hand = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -59,14 +65,14 @@ public class PlayVideo : MonoBehaviour {
             tracker.Update(frame.Mat, out box);
             if (box != null) {
                 frame.Draw(box, new Bgr(System.Drawing.Color.Green), 3);
-                hand.transform.position = VideoCoordToScreenCoord(box.X, box.Y, frame.Width, frame.Height);
+                hand.transform.position = VideoCoordToScreenCoord(box.X, box.Y, frame.Width, frame.Height) * 5;
             } else {
                 Debug.Log("Box is null");
             }
         } else {
             frame.Draw(handBox, new Bgr(System.Drawing.Color.Green), 3);
         }
-        GetComponent<Renderer>().material.mainTexture = TextureConvert.ImageToTexture2D<Bgr, byte>(frame,FlipType.None);
+        GetComponent<RawImage>().texture = TextureConvert.ImageToTexture2D<Bgr, byte>(frame,FlipType.Vertical);
     }
 
     void OnApplicationQuit() {
@@ -76,8 +82,7 @@ public class PlayVideo : MonoBehaviour {
     Vector3 VideoCoordToScreenCoord(float x, float y, float frameWidth, float frameHeight) {
         float widthY = (float)camera.pixelWidth / frameWidth;
         float heightY = (float)camera.pixelHeight / frameHeight;
-        Debug.Log(new Vector3(x * widthY,y * heightY, 0));
-        Vector3 vector = camera.ScreenToWorldPoint(new Vector3(-x * widthY,-y * heightY, Camera.main.nearClipPlane));
+        Vector3 vector = camera.ScreenToWorldPoint(new Vector3(x * widthY,-y * heightY, Camera.main.nearClipPlane));
         vector.z = 0;
         return vector;
     }
