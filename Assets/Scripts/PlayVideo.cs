@@ -15,13 +15,13 @@ using static SkinDetection;
 public class PlayVideo : MonoBehaviour {
 
     public Camera camera;
+    public GameObject hand;
 
     VideoCapture capture;
     Texture2D texture;
     TrackerCSRT tracker;
     Rectangle handBox;// = new Rectangle(150, 150, 200, 200);
     bool isReady = false;
-    GameObject hand;
     RawImage RawImage;
 
     // Start is called before the first frame update
@@ -29,16 +29,9 @@ public class PlayVideo : MonoBehaviour {
         capture = new VideoCapture(0);
         Image<Bgr, Byte> initialFrame = capture.QueryFrame().ToImage<Bgr,Byte>();
         tracker = new TrackerCSRT();
+        RawImage = GetComponent<RawImage>();
 
         // Drawing inital handBox
-        RawImage = GetComponent<RawImage>();
-        Rect size = RawImage.rectTransform.rect;
-        float width = size.width;
-        float height = size.height;
-        float widthX = width / initialFrame.Width;
-        float heightX = height / initialFrame.Height;
-
-
         float midX = (initialFrame.Width / 2);
         float midY = (initialFrame.Height / 2);
         handBox = new Rectangle((int)midX - 100,(int)midY - 100, 200, 200);
@@ -46,16 +39,6 @@ public class PlayVideo : MonoBehaviour {
         initialFrame.Draw(handBox, new Bgr(System.Drawing.Color.Green), 3);
         texture = TextureConvert.ImageToTexture2D<Bgr, Byte>(initialFrame, FlipType.Vertical);
         RawImage.texture = texture;
-
- // Move Raw Image
-            RawImage.rectTransform.anchorMin = new Vector2(1, 0);
-            RawImage.rectTransform.anchorMax = new Vector2(1, 0);
-            RawImage.rectTransform.pivot = new Vector2(1, 0);
-            RawImage.rectTransform.sizeDelta = new Vector2(319, 179);
-
-        // Spawn "hand"
-        hand = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        hand.transform.position = VideoCoordToScreenCoord(handBox.X, handBox.Y, initialFrame.Width, initialFrame.Height);
     }
 
     // Update is called once per frame
@@ -97,9 +80,7 @@ public class PlayVideo : MonoBehaviour {
     }
 
     Vector3 VideoCoordToScreenCoord(float x, float y, float frameWidth, float frameHeight) {
-        float widthY = (float)camera.pixelWidth / frameWidth;
-        float heightY = (float)camera.pixelHeight / frameHeight;
-        Vector3 vector = camera.ScreenToWorldPoint(new Vector3(x + 218 ,y + 100 , Camera.main.nearClipPlane));
+        Vector3 vector = camera.ViewportToWorldPoint(new Vector3(x - 218,y - 258,camera.nearClipPlane));
         vector.z = 0;
         return vector;
     }
