@@ -60,7 +60,12 @@ public class PlayVideo : MonoBehaviour {
             print("space key was pressed");
             tracker.Init(frame.Mat, handBox);
             isReady = true;
-            RawImage.enabled = false;
+
+            // Move Raw Image
+            RawImage.rectTransform.anchorMin = new Vector2(1, 0);
+            RawImage.rectTransform.anchorMax = new Vector2(1, 0);
+            RawImage.rectTransform.pivot = new Vector2(1, 0);
+            RawImage.rectTransform.sizeDelta = new Vector2(319, 179);
         }
 
         if (isReady) {
