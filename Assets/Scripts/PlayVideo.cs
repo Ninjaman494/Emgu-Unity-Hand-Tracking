@@ -22,15 +22,17 @@ public class PlayVideo : MonoBehaviour {
     Rectangle handBox;// = new Rectangle(150, 150, 200, 200);
     bool isReady = false;
     GameObject hand;
+    RawImage RawImage;
 
     // Start is called before the first frame update
     void Start() {
         capture = new VideoCapture(0);
         Image<Bgr, Byte> initialFrame = capture.QueryFrame().ToImage<Bgr,Byte>();
         tracker = new TrackerCSRT();
-        
+
         // Drawing inital handBox
-        Rect size = GetComponent<RawImage>().rectTransform.rect;
+        RawImage = GetComponent<RawImage>();
+        Rect size = RawImage.rectTransform.rect;
         float width = size.width;
         float height = size.height;
         float widthX = width / initialFrame.Width;
@@ -44,7 +46,7 @@ public class PlayVideo : MonoBehaviour {
 
         initialFrame.Draw(handBox, new Bgr(System.Drawing.Color.Green), 3);
         texture = TextureConvert.ImageToTexture2D<Bgr, Byte>(initialFrame, FlipType.Vertical);
-        GetComponent<RawImage>().texture = texture;
+        RawImage.texture = texture;
 
         // Spawn "hand"
         hand = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -58,6 +60,7 @@ public class PlayVideo : MonoBehaviour {
             print("space key was pressed");
             tracker.Init(frame.Mat, handBox);
             isReady = true;
+            RawImage.enabled = false;
         }
 
         if (isReady) {
@@ -65,14 +68,14 @@ public class PlayVideo : MonoBehaviour {
             tracker.Update(frame.Mat, out box);
             if (box != null) {
                 frame.Draw(box, new Bgr(System.Drawing.Color.Green), 3);
-                hand.transform.position = VideoCoordToScreenCoord(box.X, box.Y, frame.Width, frame.Height) * 5;
+                hand.transform.position = VideoCoordToScreenCoord(box.X, box.Y, frame.Width, frame.Height) * 10;
             } else {
                 Debug.Log("Box is null");
             }
         } else {
             frame.Draw(handBox, new Bgr(System.Drawing.Color.Green), 3);
         }
-        GetComponent<RawImage>().texture = TextureConvert.ImageToTexture2D<Bgr, byte>(frame,FlipType.Vertical);
+        RawImage.texture = TextureConvert.ImageToTexture2D<Bgr, byte>(frame,FlipType.Vertical);
     }
 
     void OnApplicationQuit() {
