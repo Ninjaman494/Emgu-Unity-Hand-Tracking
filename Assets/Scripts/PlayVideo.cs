@@ -42,11 +42,16 @@ public class PlayVideo : MonoBehaviour {
         float midX = (initialFrame.Width / 2);
         float midY = (initialFrame.Height / 2);
         handBox = new Rectangle((int)midX - 100,(int)midY - 100, 200, 200);
-        Debug.Log(width);
 
         initialFrame.Draw(handBox, new Bgr(System.Drawing.Color.Green), 3);
         texture = TextureConvert.ImageToTexture2D<Bgr, Byte>(initialFrame, FlipType.Vertical);
         RawImage.texture = texture;
+
+ // Move Raw Image
+            RawImage.rectTransform.anchorMin = new Vector2(1, 0);
+            RawImage.rectTransform.anchorMax = new Vector2(1, 0);
+            RawImage.rectTransform.pivot = new Vector2(1, 0);
+            RawImage.rectTransform.sizeDelta = new Vector2(319, 179);
 
         // Spawn "hand"
         hand = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -73,7 +78,11 @@ public class PlayVideo : MonoBehaviour {
             tracker.Update(frame.Mat, out box);
             if (box != null) {
                 frame.Draw(box, new Bgr(System.Drawing.Color.Green), 3);
-                hand.transform.position = VideoCoordToScreenCoord(box.X, box.Y, frame.Width, frame.Height) * 10;
+
+                // Invert y axis
+                Vector3 pos = VideoCoordToScreenCoord(box.X, box.Y, frame.Width, frame.Height);
+                pos.y = pos.y * -1;
+                hand.transform.position = pos;
             } else {
                 Debug.Log("Box is null");
             }
@@ -90,7 +99,7 @@ public class PlayVideo : MonoBehaviour {
     Vector3 VideoCoordToScreenCoord(float x, float y, float frameWidth, float frameHeight) {
         float widthY = (float)camera.pixelWidth / frameWidth;
         float heightY = (float)camera.pixelHeight / frameHeight;
-        Vector3 vector = camera.ScreenToWorldPoint(new Vector3(x * widthY,-y * heightY, Camera.main.nearClipPlane));
+        Vector3 vector = camera.ScreenToWorldPoint(new Vector3(x + 218 ,y + 100 , Camera.main.nearClipPlane));
         vector.z = 0;
         return vector;
     }
