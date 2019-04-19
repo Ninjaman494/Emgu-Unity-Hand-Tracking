@@ -10,6 +10,10 @@ using System.Runtime.InteropServices;
 using System;
 using System.Drawing;
 
+/// Performs Skin Dection on the given image. Adapted from this
+/// OpenCV c++ script: https://bytefish.de/blog/opencv/skin_color_thresholding/ 
+///
+/// author: Akash Eldo
 public class SkinDetection : MonoBehaviour {
 
     static bool R1(int R, int G, int B) {
@@ -31,6 +35,8 @@ public class SkinDetection : MonoBehaviour {
         return (H < 25) || (H > 230);
     }
 
+    // Detects Skin. Takes an image and returns a binary image with the background removed.
+    // Skin is white and everything else will be black.
     public static Image<Bgr,Byte> GetSkin(Image<Bgr, Byte> image) {
         // allocate the result matrix
         Image<Bgr,Byte> dst = image.Clone();
@@ -81,14 +87,15 @@ public class SkinDetection : MonoBehaviour {
                 if(!(a&&b&&c)) {
                     dst[i,j] = cblack;
                 } else {
-                    dst[i,j] = cwhite; // Make hand white
+                    dst[i,j] = cwhite; // Make skin white
                 }
             }
         }
         return dst;
     }
 
-    // Start is called before the first frame update
+    // Start is called before the first frame update. Perfoms skin detection on an image. 
+    // Then hand detection and stores the result in a jpg. Should only be used for testing
     void Start() {
         Image<Bgr, Byte> picture = new Image<Bgr, Byte>("C:\\Users\\akash\\Downloads\\new_hand.jpg"); 
         Image<Bgr,Byte> hand = GetSkin(picture);
@@ -96,9 +103,11 @@ public class SkinDetection : MonoBehaviour {
         //hand.Save("C:\\Users\\akash\\Desktop\\picture2.jpg");
     }
 
+    // Uses a HAAR cascade file to detect a hand in an image. Returns
+    // the given image with a rectangle around the hands, if one is found.
     public static Image<Bgr, Byte> DoCascade(Image<Bgr,Byte> source) {
         //Bitmap Source; //your Bitmap
-        Image<Bgr, Byte> ImageFrame = source;//new Image<Bgr, Byte>("C:\\Users\\akash\\Downloads\\hand.jpg"); //image that stores your bitmap
+        Image<Bgr, Byte> ImageFrame = source; //image that stores your bitmap
         Image<Gray, Byte> grayFrame = ImageFrame.Convert<Gray, Byte>(); //grayscale of your image
         CascadeClassifier haar = new CascadeClassifier("C:\\Users\\akash\\Downloads\\Hand.Cascade.1.xml"); //the object used for detection
 
@@ -108,9 +117,12 @@ public class SkinDetection : MonoBehaviour {
         return ImageFrame; //returns your bitmap with detection applied;
     }
 
+    // Same thing as DoCascade except insteading of return an image
+    // with rectangles, it returns a list of rectangles. Each rectangle 
+    // corresponds to a hands location in the image.
     public static Rectangle DoCascadeRect(Image<Bgr,Byte> source) {
         //Bitmap Source; //your Bitmap
-        Image<Bgr, Byte> ImageFrame = source;//new Image<Bgr, Byte>("C:\\Users\\akash\\Downloads\\hand.jpg"); //image that stores your bitmap
+        Image<Bgr, Byte> ImageFrame = source; //image that stores your bitmap
         Image<Gray, Byte> grayFrame = ImageFrame.Convert<Gray, Byte>(); //grayscale of your image
         CascadeClassifier haar = new CascadeClassifier("C:\\Users\\akash\\Downloads\\Hand.Cascade.1.xml"); //the object used for detection
 

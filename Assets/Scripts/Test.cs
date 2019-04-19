@@ -9,6 +9,11 @@ using System.Runtime.InteropServices;
 using System;
 using System.Drawing;
 
+/// A simple script to test that the EmguCV library has been
+/// added correctly. Script takes a file and draws a white 
+/// diagonal on it.
+///
+/// author: Akash Eldo
 public class Test : MonoBehaviour
 {
     // Start is called before the first frame update

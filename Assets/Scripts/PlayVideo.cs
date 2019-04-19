@@ -12,6 +12,14 @@ using System;
 using System.Drawing;
 using static SkinDetection;
 
+/// Main script for scene. Launches webcam and tracks hand as it moves. Also 
+/// moves hand object in conjunction with the player's movements. Script 
+/// first displays a rectangle for initializing the hand tracker. Once the 
+/// spacebar is pressed, the script will move the webcam feed to the bottom 
+/// right hand corner of the Canvas. The script doesn't use hand detection 
+/// and instead uses object tracking, which is why an initial frame is required.
+///
+/// author: Akash Eldo
 public class PlayVideo : MonoBehaviour {
 
     public Camera camera;
@@ -44,18 +52,20 @@ public class PlayVideo : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         Image<Bgr, Byte> frame = capture.QueryFrame().ToImage<Bgr,Byte>();
+        // Initialize tracker
         if (Input.GetKeyDown("space") && !isReady) {
             print("space key was pressed");
             tracker.Init(frame.Mat, handBox);
             isReady = true;
 
-            // Move Raw Image
+            // Move Raw Image to bottom right hand corner
             RawImage.rectTransform.anchorMin = new Vector2(1, 0);
             RawImage.rectTransform.anchorMax = new Vector2(1, 0);
             RawImage.rectTransform.pivot = new Vector2(1, 0);
             RawImage.rectTransform.sizeDelta = new Vector2(319, 179);
         }
 
+        // User has already initalized tracker, do tracking on this frame
         if (isReady) {
             Rectangle box;
             tracker.Update(frame.Mat, out box);
